@@ -40,5 +40,72 @@
 # <p>Exactly four continued fractions, for $N \le 13$, have an odd period.</p>
 # <p>How many continued fractions for $N \le 10\,000$ have an odd period?</p>
 
+import time
+from math import sqrt
+
+class FracItem:
+    def __init__(self, add, n, sub, denom, prev=None):
+        self.add = add
+        self.n = n
+        self.sub = sub
+        self.denom = denom
+        self.prev: FracItem = prev
+        assert self.add   > 0, f"add: {self.add} <= 0"
+        assert self.n     > 0, f"n: {self.n} <= 0"
+        assert self.sub   > 0, f"sub: {self.sub} <= 0"
+        assert self.denom > 0, f"denom: {self.denom} <= 0"
+    
+    def valid(self):
+        return getFloorSqrt(self.n) >= self.sub
+    
+    def getNextFracItem(self):
+        assert (self.n - self.sub**2) % self.denom == 0, self.__repr__()
+        new_n = self.n
+        new_denom = (self.n - self.sub**2) // self.denom
+        new_add = self.sub // new_denom + 1
+        new_sub = - (self.sub - new_add * new_denom)
+        return FracItem(new_add, new_n, new_sub, new_denom, self)
+    
+    def addOffset(self):
+        self.add += 1
+        self.sub += self.denom
+        return self
+
+    def __repr__(self):
+        return f"{self.add} + (sqrt({self.n}) - {self.sub}) / {self.denom}"
 
 
+def getFloorSqrt(n):
+    return int(sqrt(n))
+
+def solve(f: FracItem):
+    history = []
+    while True:
+        if f.__repr__() in history:
+            start = history.index(f.__repr__())
+            loop = len(history) - start
+            break
+        if f.valid():
+            # print(f)
+            history.append(f.__repr__())
+            f = f.getNextFracItem()
+        else:
+            f = f.prev.addOffset()
+            # print("addOffset:", f)
+            history.pop()
+
+    # print(history)
+    return loop
+
+if __name__ == "__main__":
+    start = time.time()
+    count = 0
+    for n in range(2, 10_001):
+        floor_sqrt = getFloorSqrt(n)
+        if sqrt(n) == floor_sqrt: continue
+        f = FracItem(floor_sqrt, n, floor_sqrt, 1)
+        if solve(f) % 2 != 0:
+            count += 1
+    end = time.time()
+    print(count)
+    print(end - start)
