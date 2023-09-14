@@ -17,10 +17,11 @@ def simp_frac(numer, denom):
     else:
         return numer // gcd_value, denom // gcd_value
 
-count = 0
-a, b = (1, 1)
-for i in range(10_000):
-    a, b = simp_frac(a + 2 * b, a + b)
-    if len(str(a)) > len(str(b)):
-        count += 1
-print(count)
+if __name__ == "__main__":
+    count = 0
+    a, b = (1, 1)
+    for i in range(10_000):
+        a, b = simp_frac(a + 2 * b, a + b)
+        if len(str(a)) > len(str(b)):
+            count += 1
+    print(count)

@@ -80,21 +80,21 @@ def getFloorSqrt(n):
 
 def solve(f: FracItem):
     history = []
+    loop = []  # [a0; <a1, ..., an>], can be proved that the loop always starts @a1
     while True:
         if f.__repr__() in history:
-            start = history.index(f.__repr__())
-            loop = len(history) - start
+            # start = history.index(f.__repr__())
+            # loop_len = len(history) - start
             break
         if f.valid():
-            # print(f)
             history.append(f.__repr__())
+            loop.append(f.add)
             f = f.getNextFracItem()
         else:
             f = f.prev.addOffset()
-            # print("addOffset:", f)
             history.pop()
+            loop.pop()
 
-    # print(history)
     return loop
 
 if __name__ == "__main__":
@@ -104,7 +104,8 @@ if __name__ == "__main__":
         floor_sqrt = getFloorSqrt(n)
         if sqrt(n) == floor_sqrt: continue
         f = FracItem(floor_sqrt, n, floor_sqrt, 1)
-        if solve(f) % 2 != 0:
+        loop = solve(f)
+        if (len(loop) - 1) % 2 != 0:
             count += 1
     end = time.time()
     print(count)
